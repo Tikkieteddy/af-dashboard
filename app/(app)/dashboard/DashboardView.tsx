@@ -13,6 +13,7 @@ import ViewKPIChart from "@/components/dashboard/ViewKPIChart";
 import DataTable from "@/components/dashboard/DataTable";
 import DateRangePicker from "@/components/dashboard/DateRangePicker";
 import SourceFilter from "@/components/dashboard/SourceFilter";
+import Logo from "@/components/layout/Logo";
 
 const REFRESH_INTERVAL = 30_000;
 
@@ -94,21 +95,6 @@ export default function DashboardView({
 
   return (
     <div className="space-y-5">
-      {/* Controls (refresh) — ไม่อยู่ใน snapshot */}
-      <div className="flex items-center justify-end gap-2 text-xs text-af-gray-dark">
-        <span>อัพเดทล่าสุด {formatThaiDateTime(lastUpdated)}</span>
-        <button
-          onClick={fetchRows}
-          disabled={refreshing}
-          className="af-btn-ghost !p-2"
-          aria-label="รีเฟรชข้อมูล"
-        >
-          <RefreshCw
-            className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
-          />
-        </button>
-      </div>
-
       {error && (
         <div className="rounded-xl bg-red-50 text-red-700 px-4 py-3 text-sm">
           เกิดข้อผิดพลาด: {error}
@@ -116,14 +102,35 @@ export default function DashboardView({
       )}
 
       <div id="dashboard-snapshot" className="space-y-5">
-        {/* Heading */}
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-af-navy">
-            Dashboard
-          </h1>
-          <p className="text-sm text-af-gray-dark mt-1">
-            ภาพรวมยอดวิวรายวัน เทียบเป้าหมาย KPI
-          </p>
+        {/* Header row: title (left) — logo (center) — updated (right) */}
+        <div className="flex items-center justify-between gap-4 flex-wrap lg:flex-nowrap">
+          <div className="order-1 lg:flex-1 min-w-0">
+            <h1 className="text-2xl lg:text-3xl font-bold text-af-navy">
+              Dashboard
+            </h1>
+            <p className="text-sm text-af-gray-dark mt-1">
+              ภาพรวมยอดวิวรายวัน เทียบเป้าหมาย KPI
+            </p>
+          </div>
+
+          <div className="order-3 lg:order-2 w-full lg:w-auto flex justify-center shrink-0">
+            <Logo className="h-16 lg:h-20 w-auto" />
+          </div>
+
+          <div className="order-2 lg:order-3 lg:flex-1 flex items-center justify-end gap-2 text-xs text-af-gray-dark">
+            <span>อัพเดทล่าสุด {formatThaiDateTime(lastUpdated)}</span>
+            <button
+              onClick={fetchRows}
+              disabled={refreshing}
+              className="af-btn-ghost !p-2"
+              aria-label="รีเฟรชข้อมูล"
+              data-snapshot-hide
+            >
+              <RefreshCw
+                className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+              />
+            </button>
+          </div>
         </div>
 
         {/* Gauge + 3 vertical stacked metric cards */}
