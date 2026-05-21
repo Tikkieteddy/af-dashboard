@@ -18,7 +18,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "AF Dashboard",
   description: "ระบบติดตามยอดวิวรายวันของ AF",
-  icons: { icon: "/af-logo.png" },
+  icons: { icon: "/AF.png" },
 };
 
 export default function RootLayout({
