@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import { Resend } from "resend";
 import { renderDashboardEmailHtml } from "./email-template";
 import type { DailyMetric } from "./types";
@@ -7,17 +5,17 @@ import type { DailyMetric } from "./types";
 interface ResendAttachment {
   filename: string;
   content: string;
-  content_id?: string;
 }
 
-function loadLogoBase64(): string | null {
-  try {
-    const file = path.join(process.cwd(), "public", "AF.png");
-    if (!fs.existsSync(file)) return null;
-    return fs.readFileSync(file).toString("base64");
-  } catch {
-    return null;
+/** URL ที่ public/AF.png เข้าถึงได้จากภายนอก (ใช้ใน <img> ของอีเมล) */
+function getAppUrl(): string | null {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
   }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return null;
 }
 
 export interface SendEmailResult {
@@ -48,19 +46,11 @@ export async function sendDashboardEmail({
 
   const attachments: ResendAttachment[] = [];
 
-  // โลโก้ AF เป็น inline attachment (cid:af-logo)
-  let logoCid: string | null = null;
-  const logoBase64 = loadLogoBase64();
-  if (logoBase64) {
-    logoCid = "af-logo";
-    attachments.push({
-      filename: "af-logo.png",
-      content: logoBase64,
-      content_id: logoCid,
-    });
-  }
+  // โลโก้ AF: ใช้ absolute URL ผ่าน NEXT_PUBLIC_APP_URL หรือ VERCEL_URL
+  const appUrl = getAppUrl();
+  const logoUrl = appUrl ? `${appUrl}/AF.png` : null;
 
-  // ภาพสแนป dashboard (ถ้ามี) เป็น inline attachment ด้วย
+  // ภาพสแนป dashboard (ถ้ามี) เป็น attachment
   let snapshotCid: string | null = null;
   if (attachmentDataUrl && attachmentDataUrl.startsWith("data:image/")) {
     const base64 = attachmentDataUrl.split(",")[1];
@@ -69,7 +59,6 @@ export async function sendDashboardEmail({
       attachments.push({
         filename: "dashboard.png",
         content: base64,
-        content_id: snapshotCid,
       });
     }
   }
@@ -77,7 +66,7 @@ export async function sendDashboardEmail({
   const html = renderDashboardEmailHtml({
     rows,
     attachmentCid: snapshotCid,
-    logoCid,
+    logoUrl,
   });
   const subject = `AF Dashboard — สรุปยอดวิว ${new Date().toLocaleDateString("th-TH")}`;
 
