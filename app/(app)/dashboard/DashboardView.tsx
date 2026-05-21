@@ -13,7 +13,6 @@ import ViewKPIChart from "@/components/dashboard/ViewKPIChart";
 import DataTable from "@/components/dashboard/DataTable";
 import DateRangePicker from "@/components/dashboard/DateRangePicker";
 import SourceFilter from "@/components/dashboard/SourceFilter";
-import Logo from "@/components/layout/Logo";
 
 const REFRESH_INTERVAL = 30_000;
 
@@ -117,22 +116,14 @@ export default function DashboardView({
       )}
 
       <div id="dashboard-snapshot" className="space-y-5">
-        {/* Heading: logo + title อยู่แนวเดียวกัน */}
-        <div className="flex items-center gap-4">
-          <Logo
-            variant="full"
-            width={160}
-            height={68}
-            className="h-14 lg:h-16 w-auto shrink-0"
-          />
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-af-navy leading-none">
-              Dashboard
-            </h1>
-            <p className="text-sm text-af-gray-dark mt-1.5">
-              ภาพรวมยอดวิวรายวัน เทียบเป้าหมาย KPI
-            </p>
-          </div>
+        {/* Heading */}
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-af-navy">
+            Dashboard
+          </h1>
+          <p className="text-sm text-af-gray-dark mt-1">
+            ภาพรวมยอดวิวรายวัน เทียบเป้าหมาย KPI
+          </p>
         </div>
 
         {/* Gauge + 3 vertical stacked metric cards */}

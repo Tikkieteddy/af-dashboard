@@ -3,24 +3,18 @@
 import type { AuthUser } from "@/lib/types";
 import { roleBadgeClass, roleLabel } from "@/lib/roles";
 import { LogOut } from "lucide-react";
-import Logo from "./Logo";
 
 export default function MobileHeader({ user }: { user: AuthUser }) {
   return (
     <header className="lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
       <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 overflow-hidden">
-            <Logo variant="mark" width={36} height={36} className="w-9 h-9" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-af-navy leading-none">
-              AF Dashboard
-            </p>
-            <span className={roleBadgeClass(user.role)}>
-              {roleLabel(user.role)}
-            </span>
-          </div>
+        <div>
+          <p className="text-sm font-bold text-af-navy leading-none">
+            AF Dashboard
+          </p>
+          <span className={roleBadgeClass(user.role)}>
+            {roleLabel(user.role)}
+          </span>
         </div>
         <form action="/api/auth/signout" method="POST">
           <button

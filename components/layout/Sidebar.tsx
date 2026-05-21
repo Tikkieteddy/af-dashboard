@@ -14,7 +14,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import Logo from "./Logo";
 import type { AuthUser } from "@/lib/types";
 import { roleBadgeClass, roleLabel } from "@/lib/roles";
 import { cn } from "@/lib/utils";
@@ -96,21 +95,21 @@ export default function Sidebar({ user }: { user: AuthUser }) {
     >
       <div
         className={cn(
-          "flex items-center py-4 border-b border-gray-100",
-          collapsed ? "px-3 justify-center" : "px-4 justify-center",
+          "flex items-center py-5 border-b border-gray-100",
+          collapsed ? "px-3 justify-center" : "px-5",
         )}
       >
         {collapsed ? (
-          <div className="w-11 h-11 overflow-hidden">
-            <Logo variant="mark" width={44} height={44} className="w-11 h-11" />
-          </div>
+          <p className="text-sm font-bold text-af-pink">AF</p>
         ) : (
-          <Logo
-            variant="full"
-            width={200}
-            height={84}
-            className="h-16 w-auto"
-          />
+          <div>
+            <p className="text-base font-bold text-af-navy leading-none">
+              AF Dashboard
+            </p>
+            <p className="text-[11px] text-af-gray-dark mt-1">
+              ติดตามยอดวิวรายวัน
+            </p>
+          </div>
         )}
       </div>
 
