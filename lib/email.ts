@@ -1,10 +1,17 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { renderDashboardEmailHtml } from "./email-template";
 import type { DailyMetric } from "./types";
 
-interface ResendAttachment {
+export interface SendEmailResult {
+  ok: boolean;
+  id?: string;
+  error?: string;
+}
+
+interface MailAttachment {
   filename: string;
-  content: string;
+  content: Buffer;
+  contentType?: string;
 }
 
 /** URL ที่ public/AF.png เข้าถึงได้จากภายนอก (ใช้ใน <img> ของอีเมล) */
@@ -18,10 +25,26 @@ function getAppUrl(): string | null {
   return null;
 }
 
-export interface SendEmailResult {
-  ok: boolean;
-  id?: string;
-  error?: string;
+function makeTransport() {
+  const host = process.env.SMTP_HOST;
+  const portRaw = process.env.SMTP_PORT ?? "587";
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    throw new Error(
+      "ขาด env: SMTP_HOST / SMTP_USER / SMTP_PASS — ตั้งใน .env.local และ Vercel",
+    );
+  }
+  const port = Number(portRaw) || 587;
+  const secure = port === 465; // 465 = SSL, 587 = STARTTLS
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+  });
 }
 
 export async function sendDashboardEmail({
@@ -33,56 +56,58 @@ export async function sendDashboardEmail({
   recipients: string[];
   attachmentDataUrl: string | null;
 }): Promise<SendEmailResult> {
-  if (!process.env.RESEND_API_KEY) {
-    return { ok: false, error: "RESEND_API_KEY ไม่ได้ตั้งค่า" };
-  }
   if (recipients.length === 0) {
     return { ok: false, error: "ยังไม่มีรายชื่อผู้รับที่ active" };
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const from =
-    process.env.RESEND_FROM_EMAIL ?? "AF Dashboard <onboarding@resend.dev>";
+  let transporter: nodemailer.Transporter;
+  try {
+    transporter = makeTransport();
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
 
-  const attachments: ResendAttachment[] = [];
-
-  // โลโก้ AF: ใช้ absolute URL ผ่าน NEXT_PUBLIC_APP_URL หรือ VERCEL_URL
-  const appUrl = getAppUrl();
-  const logoUrl = appUrl ? `${appUrl}/AF.png` : null;
-
-  // ภาพสแนป dashboard (ถ้ามี) เป็น attachment
-  let snapshotCid: string | null = null;
+  const attachments: MailAttachment[] = [];
   if (attachmentDataUrl && attachmentDataUrl.startsWith("data:image/")) {
     const base64 = attachmentDataUrl.split(",")[1];
     if (base64) {
-      snapshotCid = "dashboard-snapshot";
       attachments.push({
-        filename: "dashboard.png",
-        content: base64,
+        filename: `dashboard-${new Date().toISOString().slice(0, 10)}.png`,
+        content: Buffer.from(base64, "base64"),
+        contentType: "image/png",
       });
     }
   }
 
+  const logoUrl = (() => {
+    const app = getAppUrl();
+    return app ? `${app}/AF.png` : null;
+  })();
+
   const html = renderDashboardEmailHtml({
     rows,
-    attachmentCid: snapshotCid,
+    attachmentCid: attachments.length > 0 ? "snapshot" : null,
     logoUrl,
   });
   const subject = `AF Dashboard — สรุปยอดวิว ${new Date().toLocaleDateString("th-TH")}`;
+  const from =
+    process.env.SMTP_FROM ??
+    process.env.RESEND_FROM_EMAIL ??
+    process.env.SMTP_USER ??
+    "AF Dashboard <noreply@example.com>";
 
   try {
-    const result = await resend.emails.send({
+    const info = await transporter.sendMail({
       from,
       to: recipients,
       subject,
       html,
-      attachments: attachments.length > 0 ? attachments : undefined,
+      attachments,
     });
-
-    if (result.error) {
-      return { ok: false, error: result.error.message };
-    }
-    return { ok: true, id: result.data?.id };
+    return { ok: true, id: info.messageId };
   } catch (err) {
     return {
       ok: false,
