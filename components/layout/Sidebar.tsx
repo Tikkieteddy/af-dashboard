@@ -96,22 +96,21 @@ export default function Sidebar({ user }: { user: AuthUser }) {
     >
       <div
         className={cn(
-          "flex items-center gap-3 py-5 border-b border-gray-100",
-          collapsed ? "px-3 justify-center" : "px-5",
+          "flex items-center py-4 border-b border-gray-100",
+          collapsed ? "px-3 justify-center" : "px-4 justify-center",
         )}
       >
-        <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
-          <Logo size={40} className="w-10 h-10" />
-        </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-af-navy leading-none truncate">
-              AF Dashboard
-            </p>
-            <p className="text-[11px] text-af-gray-dark mt-1">
-              ติดตามยอดวิวรายวัน
-            </p>
+        {collapsed ? (
+          <div className="w-11 h-11 overflow-hidden">
+            <Logo variant="mark" width={44} height={44} className="w-11 h-11" />
           </div>
+        ) : (
+          <Logo
+            variant="full"
+            width={200}
+            height={84}
+            className="h-16 w-auto"
+          />
         )}
       </div>
 

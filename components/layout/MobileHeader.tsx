@@ -10,8 +10,8 @@ export default function MobileHeader({ user }: { user: AuthUser }) {
     <header className="lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg overflow-hidden">
-            <Logo size={32} className="w-8 h-8" />
+          <div className="w-9 h-9 overflow-hidden">
+            <Logo variant="mark" width={36} height={36} className="w-9 h-9" />
           </div>
           <div>
             <p className="text-sm font-bold text-af-navy leading-none">
