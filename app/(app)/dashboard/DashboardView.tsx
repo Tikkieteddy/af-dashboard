@@ -125,44 +125,49 @@ export default function DashboardView({
       )}
 
       <div id="dashboard-snapshot" className="space-y-5">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <MetricCard
-            label="KPI View Target"
-            value={formatNumber(summary.kpiView)}
-            hint="เป้าหมายยอดวิวสะสม"
-            accent="orange"
-            icon={<Target className="w-5 h-5" />}
-          />
-          <MetricCard
-            label="Total View"
-            value={formatNumber(summary.totalView)}
-            hint={`สะสมจากข้อมูล ${summary.rowsCount} วัน`}
-            accent="pink"
-            icon={<Eye className="w-5 h-5" />}
-          />
-          <MetricCard
-            label="Overall %"
-            value={formatPercent(summary.pctOverall)}
-            hint={`คิดเป็น ${summary.pctTotalView.toFixed(2)}% ของเป้า`}
-            accent="navy"
-            icon={<Activity className="w-5 h-5" />}
-          />
-        </div>
-
-        {/* Gauge */}
-        <div className="af-card">
-          <h2 className="text-sm font-semibold text-af-navy mb-2">
-            ความคืบหน้าเทียบ KPI
-          </h2>
-          <GaugeChart percent={summary.pctTotalView} label="% Achieved" />
+        {/* Gauge + 3 vertical stacked metric cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4">
+          <div className="af-card flex flex-col">
+            <h2 className="text-sm font-semibold text-af-navy mb-2 text-center">
+              ความคืบหน้าเทียบ KPI
+            </h2>
+            <div className="flex-1 flex items-center justify-center">
+              <GaugeChart percent={summary.pctTotalView} label="% Achieved" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            <MetricCard
+              label="KPI View Target"
+              value={formatNumber(summary.kpiView)}
+              hint="เป้าหมายยอดวิวสะสม"
+              accent="orange"
+              icon={<Target className="w-5 h-5" />}
+              centered
+            />
+            <MetricCard
+              label="Total View"
+              value={formatNumber(summary.totalView)}
+              hint={`สะสมจากข้อมูล ${summary.rowsCount} วัน`}
+              accent="pink"
+              icon={<Eye className="w-5 h-5" />}
+              centered
+            />
+            <MetricCard
+              label="Overall %"
+              value={formatPercent(summary.pctOverall)}
+              hint={`คิดเป็น ${summary.pctTotalView.toFixed(2)}% ของเป้า`}
+              accent="navy"
+              icon={<Activity className="w-5 h-5" />}
+              centered
+            />
+          </div>
         </div>
 
         {/* Latest daily stats */}
         {summary.latestRow && (
           <div className="af-card">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <h2 className="text-sm font-semibold text-af-navy">
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
+              <h2 className="text-sm font-semibold text-af-navy text-center">
                 ผลของวันล่าสุด ({summary.latestRow.date})
               </h2>
             </div>
@@ -244,12 +249,12 @@ function DailyStat({
   tone?: "good" | "bad";
 }) {
   return (
-    <div className="rounded-xl bg-gray-50 p-3">
+    <div className="rounded-xl bg-gray-50 p-4 flex flex-col items-center justify-center text-center min-h-[88px]">
       <p className="text-[11px] text-af-gray-dark uppercase tracking-wide">
         {label}
       </p>
       <p
-        className={`text-lg font-bold mt-1 ${
+        className={`text-xl lg:text-2xl font-bold mt-1 ${
           tone === "good"
             ? "text-green-600"
             : tone === "bad"
