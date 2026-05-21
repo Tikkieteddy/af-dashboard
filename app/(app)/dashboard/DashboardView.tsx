@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Eye, Target, Activity, RefreshCw } from "lucide-react";
+import { Eye, Target, Activity, RefreshCw, Download } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { calculateMetrics, summarize } from "@/lib/calculations";
 import { formatNumber, formatPercent, formatThaiDateTime } from "@/lib/utils";
+import { rowsToCsv, downloadCsv } from "@/lib/export";
 import type { DailyMetric } from "@/lib/types";
 import GaugeChart from "@/components/dashboard/GaugeChart";
 import MetricCard from "@/components/dashboard/MetricCard";
@@ -208,9 +209,24 @@ export default function DashboardView({
 
         {/* Table */}
         <div className="af-card">
-          <h2 className="text-sm font-semibold text-af-navy mb-3">
-            ข้อมูลรายวัน
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-af-navy">
+              ข้อมูลรายวัน
+            </h2>
+            <button
+              onClick={() => {
+                const csv = rowsToCsv(computed);
+                downloadCsv(
+                  csv,
+                  `af-dashboard-${new Date().toISOString().slice(0, 10)}.csv`,
+                );
+              }}
+              disabled={computed.length === 0}
+              className="af-btn-secondary !py-1.5 text-xs"
+            >
+              <Download className="w-3.5 h-3.5" /> Export CSV
+            </button>
+          </div>
           <DataTable rows={computed} />
         </div>
       </div>
