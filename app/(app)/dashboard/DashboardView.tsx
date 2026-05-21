@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { Eye, Target, Activity, RefreshCw, Download } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { calculateMetrics, summarize } from "@/lib/calculations";
-import { formatNumber, formatPercent, formatThaiDateTime, formatThaiDate } from "@/lib/utils";
+import { formatNumber, formatPercent, formatThaiDateTime } from "@/lib/utils";
 import { rowsToCsv, downloadCsv } from "@/lib/export";
 import type { DailyMetric } from "@/lib/types";
 import GaugeChart from "@/components/dashboard/GaugeChart";
@@ -95,28 +95,19 @@ export default function DashboardView({
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-af-navy">
-            Dashboard
-          </h1>
-          <p className="text-sm text-af-gray-dark mt-0.5">
-            ภาพรวมยอดวิวรายวัน เทียบเป้าหมาย KPI
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-af-gray-dark">
-          <span>อัพเดทล่าสุด {formatThaiDateTime(lastUpdated)}</span>
-          <button
-            onClick={fetchRows}
-            disabled={refreshing}
-            className="af-btn-ghost !p-2"
-            aria-label="รีเฟรชข้อมูล"
-          >
-            <RefreshCw
-              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
-            />
-          </button>
-        </div>
+      {/* Controls (refresh) — ไม่อยู่ใน snapshot */}
+      <div className="flex items-center justify-end gap-2 text-xs text-af-gray-dark">
+        <span>อัพเดทล่าสุด {formatThaiDateTime(lastUpdated)}</span>
+        <button
+          onClick={fetchRows}
+          disabled={refreshing}
+          className="af-btn-ghost !p-2"
+          aria-label="รีเฟรชข้อมูล"
+        >
+          <RefreshCw
+            className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+          />
+        </button>
       </div>
 
       {error && (
@@ -125,21 +116,23 @@ export default function DashboardView({
         </div>
       )}
 
-      <div id="dashboard-snapshot" className="space-y-5 bg-gray-50 p-4 lg:p-6 rounded-2xl">
-        {/* Snapshot header: logo + title + date — แสดงในภาพสแนป */}
-        <div className="flex flex-col items-center text-center pt-2 pb-4 border-b border-gray-200">
+      <div id="dashboard-snapshot" className="space-y-5">
+        {/* Heading: logo + title อยู่แนวเดียวกัน */}
+        <div className="flex items-center gap-4">
           <Logo
             variant="full"
-            width={240}
-            height={100}
-            className="h-20 lg:h-24 w-auto mb-3"
+            width={160}
+            height={68}
+            className="h-14 lg:h-16 w-auto shrink-0"
           />
-          <h2 className="text-lg lg:text-xl font-bold text-af-navy">
-            AF Dashboard — สรุปยอดวิวรายวัน
-          </h2>
-          <p className="text-xs text-af-gray-dark mt-1">
-            ณ วันที่ {formatThaiDate(new Date())}
-          </p>
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-af-navy leading-none">
+              Dashboard
+            </h1>
+            <p className="text-sm text-af-gray-dark mt-1.5">
+              ภาพรวมยอดวิวรายวัน เทียบเป้าหมาย KPI
+            </p>
+          </div>
         </div>
 
         {/* Gauge + 3 vertical stacked metric cards */}
