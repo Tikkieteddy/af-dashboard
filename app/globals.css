@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --af-pink: #e91e8c;
+  --af-pink-dark: #c01876;
+  --af-pink-light: #fce4f0;
+  --af-navy: #1a1a2e;
+  --af-orange: #ff6b35;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: #fafafa;
+  color: #1a1a2e;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .af-card {
+    @apply rounded-2xl bg-white p-5 shadow-af-card border border-gray-100;
+  }
+
+  .af-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .af-btn-primary {
+    @apply af-btn bg-af-pink text-white hover:bg-af-pink-dark active:scale-[0.98] shadow-sm;
+  }
+
+  .af-btn-secondary {
+    @apply af-btn bg-white text-af-navy border border-gray-200 hover:bg-gray-50;
+  }
+
+  .af-btn-ghost {
+    @apply af-btn text-af-navy hover:bg-gray-100;
+  }
+
+  .af-input {
+    @apply w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-af-navy placeholder:text-gray-400 focus:border-af-pink focus:outline-none focus:ring-2 focus:ring-af-pink/20 transition;
+  }
+
+  .af-label {
+    @apply block text-sm font-medium text-af-navy mb-1.5;
+  }
+
+  .af-badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .af-badge-pink {
+    @apply af-badge bg-af-pink-light text-af-pink-dark;
+  }
+
+  .af-badge-orange {
+    @apply af-badge bg-af-orange-light text-af-orange;
+  }
+
+  .af-badge-gray {
+    @apply af-badge bg-gray-100 text-gray-700;
+  }
+
+  .af-badge-success {
+    @apply af-badge bg-green-100 text-green-700;
+  }
+
+  .af-badge-error {
+    @apply af-badge bg-red-100 text-red-700;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
