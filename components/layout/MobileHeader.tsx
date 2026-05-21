@@ -1,7 +1,7 @@
 "use client";
 
 import type { AuthUser } from "@/lib/types";
-import { roleBadgeClass, roleLabel } from "@/lib/auth";
+import { roleBadgeClass, roleLabel } from "@/lib/roles";
 import { LogOut } from "lucide-react";
 import Logo from "./Logo";
 

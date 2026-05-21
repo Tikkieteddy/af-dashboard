@@ -1,5 +1,7 @@
+import "server-only";
 import { createSupabaseServerClient } from "./supabase/server";
 import type { AuthUser, Role } from "./types";
+import { canEdit as canEditRole, isAdminRole } from "./roles";
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const supabase = createSupabaseServerClient();
@@ -25,23 +27,11 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 }
 
 export function canEdit(user: AuthUser | null): boolean {
-  return user?.role === "admin" || user?.role === "editor";
+  return canEditRole(user?.role);
 }
 
 export function isAdmin(user: AuthUser | null): boolean {
-  return user?.role === "admin";
+  return isAdminRole(user?.role);
 }
 
-export function roleLabel(role: Role): string {
-  return { admin: "ผู้ดูแลระบบ", editor: "ผู้บันทึกข้อมูล", viewer: "ผู้ชมข้อมูล" }[
-    role
-  ];
-}
-
-export function roleBadgeClass(role: Role): string {
-  return {
-    admin: "af-badge-pink",
-    editor: "af-badge-orange",
-    viewer: "af-badge-gray",
-  }[role];
-}
+export { roleLabel, roleBadgeClass } from "./roles";

@@ -8,7 +8,7 @@ import {
   Ban,
   CheckCircle2,
 } from "lucide-react";
-import { roleBadgeClass, roleLabel } from "@/lib/auth";
+import { roleBadgeClass, roleLabel } from "@/lib/roles";
 import { formatThaiDateTime } from "@/lib/utils";
 import type { Role } from "@/lib/types";
 
