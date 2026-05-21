@@ -1,5 +1,7 @@
 # AF Dashboard
 
+> 🚀 **Production:** https://af-dashboard2026.vercel.app
+
 ระบบ Full-Stack Dashboard สำหรับติดตามยอดวิวรายวัน เปรียบเทียบกับเป้าหมาย KPI พร้อมระบบสรุปอีเมลและ snapshot อัตโนมัติ
 
 - ⚡ **Next.js 14** (App Router) + **TypeScript strict**
