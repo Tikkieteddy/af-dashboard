@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { Eye, Target, Activity, RefreshCw, Download } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { calculateMetrics, summarize } from "@/lib/calculations";
-import { formatNumber, formatPercent, formatThaiDateTime } from "@/lib/utils";
+import { formatNumber, formatPercent, formatThaiDateTime, formatThaiDate } from "@/lib/utils";
 import { rowsToCsv, downloadCsv } from "@/lib/export";
 import type { DailyMetric } from "@/lib/types";
 import GaugeChart from "@/components/dashboard/GaugeChart";
@@ -13,6 +13,7 @@ import ViewKPIChart from "@/components/dashboard/ViewKPIChart";
 import DataTable from "@/components/dashboard/DataTable";
 import DateRangePicker from "@/components/dashboard/DateRangePicker";
 import SourceFilter from "@/components/dashboard/SourceFilter";
+import Logo from "@/components/layout/Logo";
 
 const REFRESH_INTERVAL = 30_000;
 
@@ -124,7 +125,23 @@ export default function DashboardView({
         </div>
       )}
 
-      <div id="dashboard-snapshot" className="space-y-5">
+      <div id="dashboard-snapshot" className="space-y-5 bg-gray-50 p-4 lg:p-6 rounded-2xl">
+        {/* Snapshot header: logo + title + date — แสดงในภาพสแนป */}
+        <div className="flex flex-col items-center text-center pt-2 pb-4 border-b border-gray-200">
+          <Logo
+            variant="full"
+            width={240}
+            height={100}
+            className="h-20 lg:h-24 w-auto mb-3"
+          />
+          <h2 className="text-lg lg:text-xl font-bold text-af-navy">
+            AF Dashboard — สรุปยอดวิวรายวัน
+          </h2>
+          <p className="text-xs text-af-gray-dark mt-1">
+            ณ วันที่ {formatThaiDate(new Date())}
+          </p>
+        </div>
+
         {/* Gauge + 3 vertical stacked metric cards */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4">
           <div className="af-card flex flex-col">
