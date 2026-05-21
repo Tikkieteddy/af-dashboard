@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Trash2, Save, Loader2, AlertCircle } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Save,
+  Loader2,
+  AlertCircle,
+  GripVertical,
+} from "lucide-react";
 import type { DailyMetric } from "@/lib/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { calculateMetrics } from "@/lib/calculations";
@@ -69,6 +76,25 @@ export default function SpreadsheetTable({
     text: string;
   } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const [dropBelow, setDropBelow] = useState(false);
+
+  function moveRow(srcId: string, targetId: string, below: boolean) {
+    if (srcId === targetId) return;
+    setDrafts((prev) => {
+      const srcIdx = prev.findIndex((d) => d.id === srcId);
+      const tgtIdx = prev.findIndex((d) => d.id === targetId);
+      if (srcIdx < 0 || tgtIdx < 0) return prev;
+      const next = [...prev];
+      const [item] = next.splice(srcIdx, 1);
+      let insertAt = next.findIndex((d) => d.id === targetId);
+      if (below) insertAt += 1;
+      next.splice(insertAt, 0, item);
+      return next;
+    });
+  }
 
   const computed = useMemo(() => {
     const asMetrics: DailyMetric[] = drafts.map((d) => ({
@@ -226,6 +252,7 @@ export default function SpreadsheetTable({
         <table className="w-full text-sm min-w-[1100px]">
           <thead>
             <tr className="text-left text-xs text-af-gray-dark border-b border-gray-100">
+              <th className="px-1 py-2 font-medium w-8"></th>
               <th className="px-2 py-2 font-medium w-[150px]">วันที่</th>
               <th className="px-2 py-2 font-medium w-[120px] text-right">
                 View
@@ -251,19 +278,81 @@ export default function SpreadsheetTable({
           <tbody>
             {computed.length === 0 && (
               <tr>
-                <td colSpan={10} className="text-center py-10 text-af-gray-dark">
+                <td colSpan={11} className="text-center py-10 text-af-gray-dark">
                   ยังไม่มีข้อมูล — กดปุ่ม &quot;เพิ่มแถวใหม่&quot; ด้านบน
                 </td>
               </tr>
             )}
-            {computed.map(({ draft, calc }, idx) => (
+            {computed.map(({ draft, calc }, idx) => {
+              const isDragged = draggedId === draft.id;
+              const isOver = overId === draft.id && draggedId !== draft.id;
+              return (
               <tr
                 key={draft.id}
+                onDragOver={(e) => {
+                  if (!draggedId || draggedId === draft.id) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  const rect = (
+                    e.currentTarget as HTMLTableRowElement
+                  ).getBoundingClientRect();
+                  setOverId(draft.id);
+                  setDropBelow(e.clientY > rect.top + rect.height / 2);
+                }}
+                onDragLeave={(e) => {
+                  // เฉพาะตอนออกจาก row จริงๆ (ไม่ใช่ child)
+                  const related = e.relatedTarget as Node | null;
+                  if (
+                    related &&
+                    (e.currentTarget as HTMLElement).contains(related)
+                  )
+                    return;
+                  if (overId === draft.id) {
+                    setOverId(null);
+                  }
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (draggedId && draggedId !== draft.id) {
+                    moveRow(draggedId, draft.id, dropBelow);
+                  }
+                  setDraggedId(null);
+                  setOverId(null);
+                }}
                 className={cn(
-                  "border-b border-gray-50",
+                  "border-b border-gray-50 transition-colors",
                   draft.dirty && "bg-yellow-50",
+                  isDragged && "opacity-40",
+                  isOver && !dropBelow && "shadow-[inset_0_2px_0_0_#E91E8C]",
+                  isOver && dropBelow && "shadow-[inset_0_-2px_0_0_#E91E8C]",
                 )}
               >
+                <td className="px-1 py-1.5 text-center">
+                  <div
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData("text/plain", draft.id);
+                      e.dataTransfer.effectAllowed = "move";
+                      // ใช้ row เป็น drag image ให้สวยขึ้น
+                      const row = (
+                        e.currentTarget as HTMLElement
+                      ).closest("tr");
+                      if (row) {
+                        e.dataTransfer.setDragImage(row, 20, 10);
+                      }
+                      setDraggedId(draft.id);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedId(null);
+                      setOverId(null);
+                    }}
+                    className="inline-flex items-center justify-center w-6 h-6 rounded text-af-gray-dark hover:bg-gray-100 hover:text-af-pink cursor-grab active:cursor-grabbing"
+                    aria-label="ลากเพื่อสลับลำดับ"
+                    title="ลากเพื่อสลับลำดับ"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+                </td>
                 <td className="px-2 py-1.5">
                   <input
                     type="date"
@@ -352,7 +441,8 @@ export default function SpreadsheetTable({
                   )}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
