@@ -1,6 +1,24 @@
+import fs from "node:fs";
+import path from "node:path";
 import { Resend } from "resend";
 import { renderDashboardEmailHtml } from "./email-template";
 import type { DailyMetric } from "./types";
+
+interface ResendAttachment {
+  filename: string;
+  content: string;
+  content_id?: string;
+}
+
+function loadLogoBase64(): string | null {
+  try {
+    const file = path.join(process.cwd(), "public", "AF.png");
+    if (!fs.existsSync(file)) return null;
+    return fs.readFileSync(file).toString("base64");
+  } catch {
+    return null;
+  }
+}
 
 export interface SendEmailResult {
   ok: boolean;
@@ -28,23 +46,39 @@ export async function sendDashboardEmail({
   const from =
     process.env.RESEND_FROM_EMAIL ?? "AF Dashboard <onboarding@resend.dev>";
 
-  let attachments: Array<{ filename: string; content: string }> | undefined;
-  let cid: string | null = null;
+  const attachments: ResendAttachment[] = [];
 
+  // โลโก้ AF เป็น inline attachment (cid:af-logo)
+  let logoCid: string | null = null;
+  const logoBase64 = loadLogoBase64();
+  if (logoBase64) {
+    logoCid = "af-logo";
+    attachments.push({
+      filename: "af-logo.png",
+      content: logoBase64,
+      content_id: logoCid,
+    });
+  }
+
+  // ภาพสแนป dashboard (ถ้ามี) เป็น inline attachment ด้วย
+  let snapshotCid: string | null = null;
   if (attachmentDataUrl && attachmentDataUrl.startsWith("data:image/")) {
     const base64 = attachmentDataUrl.split(",")[1];
     if (base64) {
-      cid = "dashboard-snapshot";
-      attachments = [
-        {
-          filename: "dashboard.png",
-          content: base64,
-        },
-      ];
+      snapshotCid = "dashboard-snapshot";
+      attachments.push({
+        filename: "dashboard.png",
+        content: base64,
+        content_id: snapshotCid,
+      });
     }
   }
 
-  const html = renderDashboardEmailHtml({ rows, attachmentCid: cid });
+  const html = renderDashboardEmailHtml({
+    rows,
+    attachmentCid: snapshotCid,
+    logoCid,
+  });
   const subject = `AF Dashboard — สรุปยอดวิว ${new Date().toLocaleDateString("th-TH")}`;
 
   try {
@@ -53,7 +87,7 @@ export async function sendDashboardEmail({
       to: recipients,
       subject,
       html,
-      attachments,
+      attachments: attachments.length > 0 ? attachments : undefined,
     });
 
     if (result.error) {

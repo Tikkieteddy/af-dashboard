@@ -10,9 +10,11 @@ import { formatNumber, formatPercent, formatThaiDate } from "./utils";
 export function renderDashboardEmailHtml({
   rows,
   attachmentCid,
+  logoCid,
 }: {
   rows: DailyMetric[];
   attachmentCid?: string | null;
+  logoCid?: string | null;
 }): string {
   const enriched = calculateMetrics(rows);
   const summary = summarize(enriched);
@@ -27,10 +29,23 @@ export function renderDashboardEmailHtml({
   </head>
   <body style="margin:0;padding:24px;background:#fafafa;font-family:'Kanit','Helvetica Neue',Arial,sans-serif;color:#1a1a2e">
     <div style="max-width:640px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(233,30,140,0.08)">
-      <div style="background:linear-gradient(135deg,#E91E8C,#FF6B35);padding:24px 28px;color:#fff">
-        <p style="margin:0;font-size:12px;letter-spacing:1px;opacity:0.85">AF DASHBOARD</p>
-        <h1 style="margin:6px 0 0;font-size:22px;font-weight:700">สรุปยอดวิวประจำวัน</h1>
-        <p style="margin:6px 0 0;font-size:13px;opacity:0.9">${dateStr}</p>
+      <div style="background:linear-gradient(135deg,#E91E8C,#FF6B35);color:#fff">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse">
+          <tr>
+            <td style="padding:24px 28px;vertical-align:middle">
+              <p style="margin:0;font-size:12px;letter-spacing:1px;opacity:0.85">AF DASHBOARD</p>
+              <h1 style="margin:6px 0 0;font-size:22px;font-weight:700">สรุปยอดวิวประจำวัน</h1>
+              <p style="margin:6px 0 0;font-size:13px;opacity:0.9">${dateStr}</p>
+            </td>
+            ${
+              logoCid
+                ? `<td style="padding:18px 24px;text-align:right;vertical-align:middle;width:150px">
+                <img src="cid:${logoCid}" alt="AF Logo" style="height:72px;width:auto;display:inline-block;border:0" />
+              </td>`
+                : ""
+            }
+          </tr>
+        </table>
       </div>
 
       <div style="padding:24px 28px">
